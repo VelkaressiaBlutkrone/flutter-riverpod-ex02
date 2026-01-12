@@ -26,4 +26,12 @@ class Card {
     description: description ?? this.description,
     isUse: isUse ?? this.isUse,
   );
+
+  bool isValid() {
+    if (id.isEmpty || title.trim().isEmpty) {
+      return false;
+    }
+
+    return true;
+  }
 }
