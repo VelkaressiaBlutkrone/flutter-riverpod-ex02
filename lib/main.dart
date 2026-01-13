@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_card_ui_app_ex01/logger.dart';
+import 'package:flutter_card_ui_app_ex01/screens/card_list.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const Placeholder(),
+      home: const CardListScreen(),
     );
   }
 }
