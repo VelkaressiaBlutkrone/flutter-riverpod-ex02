@@ -1,11 +1,13 @@
-class Card {
+import 'package:flutter_card_ui_app_ex01/exceptions/card_item_exception.dart';
+
+class CardItem {
   final String id;
   final String title;
   final String category;
   final String? description;
   final bool isUse;
 
-  Card({
+  CardItem({
     required this.id,
     required this.title,
     required this.category,
@@ -13,13 +15,13 @@ class Card {
     required this.isUse,
   });
 
-  Card copyWith({
+  CardItem copyWith({
     String? id,
     String? title,
     String? category,
     String? description,
     bool? isUse,
-  }) => Card(
+  }) => CardItem(
     id: id ?? this.id,
     title: title ?? this.title,
     category: category ?? this.category,
@@ -33,5 +35,15 @@ class Card {
     }
 
     return true;
+  }
+
+  void validate() {
+    if (id.isEmpty) {
+      throw CardItemIdEmptyException();
+    }
+
+    if (title.isEmpty) {
+      throw CardTitleEmptyException();
+    }
   }
 }
