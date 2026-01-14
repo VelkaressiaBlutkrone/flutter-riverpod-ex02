@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_card_ui_app_ex01/logger.dart';
 import 'package:flutter_card_ui_app_ex01/model/card_item.dart';
 import 'package:flutter_card_ui_app_ex01/provider/card_provider.dart';
+import 'package:flutter_card_ui_app_ex01/widget/card_form.dart';
+import 'package:flutter_card_ui_app_ex01/widget/custom_text_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CardAddScreen extends ConsumerStatefulWidget {
@@ -55,16 +58,10 @@ class _CardAddScreenState extends ConsumerState<CardAddScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cards = ref.watch(cardProvider);
-    final formKey = GlobalKey<FormState>();
+    logger.i('CardItem New Input Form');
     return Scaffold(
       appBar: AppBar(title: const Text('Card'), elevation: 2.0),
-      body: SingleChildScrollView(
-        child: Form(
-          key: formKey,
-          child: Column(mainAxisSize: MainAxisSize.min, children: []),
-        ),
-      ),
+      body: CardForm(onSubmit: () {}, onCancel: () {}),
     );
   }
 }
