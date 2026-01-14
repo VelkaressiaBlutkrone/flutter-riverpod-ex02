@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_card_ui_app_ex01/model/card_item.dart';
 import 'package:flutter_card_ui_app_ex01/widget/custom_button.dart';
 import 'package:flutter_card_ui_app_ex01/widget/custom_drop_down.dart';
+import 'package:flutter_card_ui_app_ex01/widget/custom_radios.dart';
 import 'package:flutter_card_ui_app_ex01/widget/custom_text_field.dart';
 import 'package:flutter/foundation.dart';
 
@@ -45,10 +46,6 @@ class _CardFormState extends State<CardForm> {
 
   @override
   Widget build(BuildContext context) {
-    final targetPlatform = defaultTargetPlatform;
-    final bool isMobile =
-        targetPlatform == TargetPlatform.android || targetPlatform == TargetPlatform.iOS;
-
     const textStyleConfig = TextStyleConfiguration(
       text: TextStyle(fontSize: 16, color: Colors.black87, height: 1.5),
     );
@@ -61,6 +58,8 @@ class _CardFormState extends State<CardForm> {
       'cate5': '건강',
       'cate6': '취미',
     };
+
+    Map<String, String> _using() => {'is_use': '사용', 'is_not_use': '미사용'};
 
     return SingleChildScrollView(
       child: Padding(
@@ -77,12 +76,33 @@ class _CardFormState extends State<CardForm> {
                 readOnly: widget.isReadOnly,
               ),
               const SizedBox(height: 10),
-              CustomDropDown(
-                items: _category(),
-                label: 'Category',
-                hint: 'select category...',
-                enabled: !widget.isReadOnly,
-                initialValue: widget.initalCi?.category,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 300,
+                    child: CustomDropDown(
+                      items: _category(),
+                      label: 'Category',
+                      hint: 'select category...',
+                      enabled: !widget.isReadOnly,
+                      initialValue: widget.initalCi?.category,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 200,
+                    child: CustomRadios(
+                      items: _using(),
+                      label: 'Use',
+                      direction: RadioDirection.horizontal,
+                      enabled: !widget.isReadOnly,
+                      initialValue: widget.initalCi?.isUse == true
+                          ? 'is_use'
+                          : 'is_not_use',
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 10),
               SafeArea(
@@ -92,13 +112,13 @@ class _CardFormState extends State<CardForm> {
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey.shade300),
                     borderRadius: BorderRadius.circular(4),
+                    color: Colors.white,
                   ),
                   child: AppFlowyEditor(
                     editorState: _editorState,
                     editable: !widget.isReadOnly,
                     editorStyle: EditorStyle.desktop(
                       cursorColor: Colors.blue,
-
                       selectionColor: Colors.blue.shade300,
                       padding: const EdgeInsets.all(10.0),
                       textStyleConfiguration: textStyleConfig, // 공통 스타일 적용
