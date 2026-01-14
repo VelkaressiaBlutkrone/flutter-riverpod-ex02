@@ -3,7 +3,6 @@ import 'package:flutter_card_ui_app_ex01/logger.dart';
 import 'package:flutter_card_ui_app_ex01/model/card_item.dart';
 import 'package:flutter_card_ui_app_ex01/provider/card_provider.dart';
 import 'package:flutter_card_ui_app_ex01/widget/card_form.dart';
-import 'package:flutter_card_ui_app_ex01/widget/custom_text_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CardAddScreen extends ConsumerStatefulWidget {

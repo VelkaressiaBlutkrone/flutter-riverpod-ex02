@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_card_ui_app_ex01/logger.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_card_ui_app_ex01/provider/card_provider.dart';
 import 'package:flutter_card_ui_app_ex01/model/card_item.dart';
+import 'package:flutter_card_ui_app_ex01/screens/card_add.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CardListScreen extends ConsumerStatefulWidget {
@@ -83,11 +84,59 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
     super.dispose();
   }
 
-  Future<void> _addCard() async {}
+  Future<void> _addCard() async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return CardAddScreen();
+      },
+    );
+  }
+
+  /// 반응형 crossAxisCount 계산
+  ///
+  /// 데스크탑/웹: 화면 넓이에 따라 최소 4개
+  /// 모바일: 1개
+  int _getCrossAxisCount(BuildContext context) {
+    final isMobile =
+        defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+
+    if (isMobile) {
+      return 2;
+    }
+
+    // 데스크탑/웹: 화면 넓이에 따라 계산
+    final screenWidth = MediaQuery.of(context).size.width;
+    final padding = 16.0 * 2; // 좌우 패딩
+    final spacing = 16.0; // 카드 간 간격
+    final cardMinWidth = 200.0; // 카드 최소 너비
+
+    // 사용 가능한 너비 계산
+    final availableWidth = screenWidth - padding;
+    // 최소 4개를 보장하면서 화면 크기에 맞게 계산
+    final calculatedCount = (availableWidth / (cardMinWidth + spacing)).floor();
+    return calculatedCount < 4 ? 4 : calculatedCount;
+  }
+
+  double _getChildAspectRatio(BuildContext context) {
+    final isMobile =
+        defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+
+    if (isMobile) {
+      return 1.1;
+    } else {
+      return 1.3;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final cards = ref.watch(cardProvider);
+    final crossAxisCount = _getCrossAxisCount(context);
+    final childAspectRatio = _getChildAspectRatio(context);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Card'), elevation: 2.0),
       body: cards.isEmpty
@@ -106,11 +155,11 @@ class _CardListScreenState extends ConsumerState<CardListScreen> {
             )
           : GridView.builder(
               padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
-                childAspectRatio: 1.5,
+                childAspectRatio: childAspectRatio,
               ),
               itemCount: cards.length,
               itemBuilder: (context, index) {
@@ -163,12 +212,12 @@ class GridCardItem extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           // Category 표시
           Text(
             card.category,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               color: Colors.grey.shade600,
               fontWeight: FontWeight.w500,
             ),
@@ -178,21 +227,25 @@ class GridCardItem extends StatelessWidget {
           Expanded(
             child: Text(
               card.title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              maxLines: 3,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                 onPressed: _detailCard,
                 icon: const Icon(Icons.delete, color: Colors.redAccent, size: 16),
               ),
-              const SizedBox(width: 5),
+              const SizedBox(width: 4),
               IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                 onPressed: _detailCard,
                 icon: const Icon(Icons.edit, color: Colors.blueAccent, size: 16),
               ),

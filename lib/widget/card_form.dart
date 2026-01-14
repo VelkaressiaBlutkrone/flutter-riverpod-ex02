@@ -4,12 +4,13 @@ import 'package:flutter_card_ui_app_ex01/model/card_item.dart';
 import 'package:flutter_card_ui_app_ex01/widget/custom_button.dart';
 import 'package:flutter_card_ui_app_ex01/widget/custom_drop_down.dart';
 import 'package:flutter_card_ui_app_ex01/widget/custom_text_field.dart';
+import 'package:flutter/foundation.dart';
 
 class CardForm extends StatefulWidget {
   final CardItem? initalCi;
   final VoidCallback? onCancel;
   final VoidCallback? onSubmit;
-  final isReadOnly;
+  final bool isReadOnly;
 
   const CardForm({
     super.key,
@@ -24,28 +25,32 @@ class CardForm extends StatefulWidget {
 }
 
 class _CardFormState extends State<CardForm> {
+  late final TextEditingController _txtTitleController;
+  late final EditorState _editorState;
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _txtTitleController = TextEditingController(text: widget.initalCi?.title ?? '');
+    _editorState = EditorState.blank(withInitialText: true);
+  }
+
+  @override
+  void dispose() {
+    _txtTitleController.dispose();
+    _editorState.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final _formKey = GlobalKey<FormState>();
-    late final _txtTitleController;
-    late EditorState _editorState;
+    final targetPlatform = defaultTargetPlatform;
+    final bool isMobile =
+        targetPlatform == TargetPlatform.android || targetPlatform == TargetPlatform.iOS;
 
-    @override
-    void initState() {
-      super.initState();
-      _txtTitleController = TextEditingController(text: widget.initalCi?.title ?? '');
-      _editorState = EditorState(document: Document.blank());
-    }
-
-    @override
-    void dispose() {
-      super.dispose();
-      _txtTitleController.dispose();
-    }
-
-    Node paragraphNode({required String text}) => Node(
-      type: ParagraphBlockKeys.type,
-      attributes: {ParagraphBlockKeys.delta: Delta()..insert(text)},
+    const textStyleConfig = TextStyleConfiguration(
+      text: TextStyle(fontSize: 16, color: Colors.black87, height: 1.5),
     );
 
     Map<String, String> _category() => {
@@ -76,50 +81,27 @@ class _CardFormState extends State<CardForm> {
                 items: _category(),
                 label: 'Category',
                 hint: 'select category...',
-                enabled: widget.isReadOnly,
-                initialValue: widget.initalCi?.category ?? '',
+                enabled: !widget.isReadOnly,
+                initialValue: widget.initalCi?.category,
               ),
               const SizedBox(height: 10),
               SafeArea(
-                child: SizedBox(
+                child: Container(
                   height: 300,
+                  // 시각적 디버깅을 위해 테두리 추가
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                   child: AppFlowyEditor(
                     editorState: _editorState,
-                    editable: widget.isReadOnly,
-                    editorStyle: EditorStyle(
+                    editable: !widget.isReadOnly,
+                    editorStyle: EditorStyle.desktop(
                       cursorColor: Colors.blue,
-                      padding: const EdgeInsets.all(10.0),
-                      dragHandleColor: Colors.blue,
+
                       selectionColor: Colors.blue.shade300,
-                      textStyleConfiguration: const TextStyleConfiguration(
-                        text: TextStyle(fontSize: 16, color: Colors.black87, height: 1.5),
-                      ),
-                      textSpanDecorator:
-                          (
-                            BuildContext context,
-                            Node node,
-                            int index,
-                            TextInsert text,
-                            TextSpan? before,
-                            TextSpan? after,
-                          ) {
-                            // 기본 텍스트 스타일 적용
-                            final textSpan = TextSpan(
-                              text: text.text,
-                              style: const TextStyle(fontSize: 16, color: Colors.black87),
-                            );
-
-                            // before와 after가 있으면 연결
-                            if (before != null && after != null) {
-                              return TextSpan(children: [before, textSpan, after]);
-                            } else if (before != null) {
-                              return TextSpan(children: [before, textSpan]);
-                            } else if (after != null) {
-                              return TextSpan(children: [textSpan, after]);
-                            }
-
-                            return textSpan;
-                          },
+                      padding: const EdgeInsets.all(10.0),
+                      textStyleConfiguration: textStyleConfig, // 공통 스타일 적용
                     ),
                   ),
                 ),
@@ -134,8 +116,9 @@ class _CardFormState extends State<CardForm> {
                       style: CustomButtonStyle.secondary,
                       onPressed: () {},
                     ),
+                    const SizedBox(width: 20),
                     CustomButton(
-                      text: 'Cancel',
+                      text: 'Add',
                       style: CustomButtonStyle.primary,
                       onPressed: () {},
                     ),

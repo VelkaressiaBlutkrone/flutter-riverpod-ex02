@@ -89,66 +89,84 @@ class CustomDropDown extends StatelessWidget {
     this.enabled = true,
   });
 
+  /// initialValue가 items의 key 중 하나인지 검증
+  ///
+  /// 유효하지 않으면 null을 반환합니다.
+  String? _getValidatedInitialValue() {
+    if (initialValue == null || initialValue!.isEmpty) {
+      return null;
+    }
+    // items의 key 중 하나인지 확인
+    if (items.containsKey(initialValue)) {
+      return initialValue;
+    }
+    return null;
+  }
+
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      if (label != null) ...[
-        Text(
-          label!,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: errorText != null ? Colors.red : Colors.grey.shade700,
+  Widget build(BuildContext context) {
+    final validatedInitialValue = _getValidatedInitialValue();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (label != null) ...[
+          Text(
+            label!,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: errorText != null ? Colors.red : Colors.grey.shade700,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-      ],
-      DropdownButtonFormField<String>(
-        initialValue: initialValue,
-        items: items.entries
-            .map(
-              (entry) =>
-                  DropdownMenuItem<String>(value: entry.key, child: Text(entry.value)),
-            )
-            .toList(),
-        onChanged: enabled
-            ? (String? selectedKey) {
-                if (selectedKey != null && onChanged != null) {
-                  final selectedValue = items[selectedKey] ?? '';
-                  onChanged!(selectedKey, selectedValue);
+          const SizedBox(height: 8),
+        ],
+        DropdownButtonFormField<String>(
+          initialValue: validatedInitialValue,
+          items: items.entries
+              .map(
+                (entry) =>
+                    DropdownMenuItem<String>(value: entry.key, child: Text(entry.value)),
+              )
+              .toList(),
+          onChanged: enabled
+              ? (String? selectedKey) {
+                  if (selectedKey != null && onChanged != null) {
+                    final selectedValue = items[selectedKey] ?? '';
+                    onChanged!(selectedKey, selectedValue);
+                  }
                 }
-              }
-            : null,
-        decoration: InputDecoration(
-          hintText: hint,
-          errorText: errorText,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(
-              color: errorText != null ? Colors.red : Colors.grey.shade300,
+              : null,
+          decoration: InputDecoration(
+            hintText: hint,
+            errorText: errorText,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: errorText != null ? Colors.red : Colors.grey.shade300,
+              ),
             ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(
-              color: errorText != null ? Colors.red : Colors.blue,
-              width: 2,
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: errorText != null ? Colors.red : Colors.blue,
+                width: 2,
+              ),
             ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.red, width: 2),
+            ),
+            filled: true,
+            fillColor: enabled ? Colors.white : Colors.grey.shade100,
           ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Colors.red),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Colors.red, width: 2),
-          ),
-          filled: true,
-          fillColor: enabled ? Colors.white : Colors.grey.shade100,
         ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 }
