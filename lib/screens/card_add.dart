@@ -60,7 +60,7 @@ class _CardAddScreenState extends ConsumerState<CardAddScreen> {
     logger.i('CardItem New Input Form');
     return Scaffold(
       appBar: AppBar(title: const Text('Card'), elevation: 2.0),
-      body: CardForm(onSubmit: () {}, onCancel: () {}),
+      body: CardForm(onSubmit: _submitItem, onCancel: () {}),
     );
   }
 }

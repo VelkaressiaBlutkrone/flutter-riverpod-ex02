@@ -239,16 +239,10 @@ class GridCardItem extends StatelessWidget {
               IconButton(
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                onPressed: _detailCard,
+                onPressed: _delete,
                 icon: const Icon(Icons.delete, color: Colors.redAccent, size: 16),
               ),
               const SizedBox(width: 4),
-              IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                onPressed: _detailCard,
-                icon: const Icon(Icons.edit, color: Colors.blueAccent, size: 16),
-              ),
             ],
           ),
         ],

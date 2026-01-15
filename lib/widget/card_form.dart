@@ -9,8 +9,17 @@ import 'package:flutter/foundation.dart';
 
 class CardForm extends StatefulWidget {
   final CardItem? initalCi;
+
+  final Future<void> Function({
+    required String title,
+    required String category,
+    String? description,
+    bool isUse,
+  })
+  onSubmit;
+
   final VoidCallback? onCancel;
-  final VoidCallback? onSubmit;
+
   final bool isReadOnly;
 
   const CardForm({
@@ -29,12 +38,16 @@ class _CardFormState extends State<CardForm> {
   late final TextEditingController _txtTitleController;
   late final EditorState _editorState;
   final _formKey = GlobalKey<FormState>();
+  String? _selectedCategory;
+  bool _isUse = true;
 
   @override
   void initState() {
     super.initState();
     _txtTitleController = TextEditingController(text: widget.initalCi?.title ?? '');
     _editorState = EditorState.blank(withInitialText: true);
+    _selectedCategory = widget.initalCi?.category;
+    _isUse = widget.initalCi?.isUse ?? true;
   }
 
   @override
@@ -42,6 +55,23 @@ class _CardFormState extends State<CardForm> {
     _txtTitleController.dispose();
     _editorState.dispose();
     super.dispose();
+  }
+
+  String _getDescriptionText() {
+    final buffer = StringBuffer();
+    for (final node in _editorState.document.root.children) {
+      if (node.type == 'paragraph' || node.type == 'heading') {
+        final delta = node.delta;
+        if (delta != null) {
+          for (final operation in delta.toJson()) {
+            if (operation is Map && operation['insert'] is String) {
+              buffer.write(operation['insert']);
+            }
+          }
+        }
+      }
+    }
+    return buffer.toString();
   }
 
   @override
@@ -87,6 +117,11 @@ class _CardFormState extends State<CardForm> {
                       hint: 'select category...',
                       enabled: !widget.isReadOnly,
                       initialValue: widget.initalCi?.category,
+                      onChanged: (key, value) {
+                        setState(() {
+                          _selectedCategory = key;
+                        });
+                      },
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -100,6 +135,11 @@ class _CardFormState extends State<CardForm> {
                       initialValue: widget.initalCi?.isUse == true
                           ? 'is_use'
                           : 'is_not_use',
+                      onChanged: (key, value) {
+                        setState(() {
+                          _isUse = key == 'is_use';
+                        });
+                      },
                     ),
                   ),
                 ],
@@ -134,13 +174,30 @@ class _CardFormState extends State<CardForm> {
                     CustomButton(
                       text: 'Cancel',
                       style: CustomButtonStyle.secondary,
-                      onPressed: () {},
+                      onPressed: widget.onCancel ?? () {},
                     ),
                     const SizedBox(width: 20),
                     CustomButton(
                       text: 'Add',
                       style: CustomButtonStyle.primary,
-                      onPressed: () {},
+                      onPressed: () {
+                        if (_formKey.currentState?.validate() ?? false) {
+                          final title = _txtTitleController.text.trim();
+                          if (title.isEmpty) {
+                            return;
+                          }
+                          if (_selectedCategory == null) {
+                            return;
+                          }
+                          final description = _getDescriptionText().trim();
+                          widget.onSubmit(
+                            title: title,
+                            category: _selectedCategory!,
+                            description: description.isEmpty ? null : description,
+                            isUse: _isUse,
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
